@@ -1,0 +1,5 @@
+application:
+  host: 0.0.0.0
+db_settings:
+  #New Entry!
+  require_ssl: true

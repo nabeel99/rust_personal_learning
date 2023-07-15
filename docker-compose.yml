@@ -1,0 +1,17 @@
+version: '3'
+services:
+  postgres:
+    image: 'postgres:latest'
+    command: postgres -N 1000
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'password'
+      POSTGRES_DB: 'newsletter'
+      POSTGRES_PORT: 5432
+      #no need to presist data for tests
+      
+    # volumes:
+    # - ./zero2prod_db_data:/var/lib/postgresql/data
+

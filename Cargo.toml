@@ -1,0 +1,61 @@
+[package]
+name = "rust_personal_learning"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+#We could use any path here, but we are following the community convention
+# We could specify a library name using the `name` field. If unspecified,
+# cargo will default to `package.name`, which is what we want.
+#could have used arbitary name like
+name="zero2prod"
+path = "src/lib.rs"
+#not needed strictly
+[[bin]]
+# Notice the double square brackets: it's an array in TOML's syntax.
+# We can only have one library in a project, but we can have multiple binaries!
+# If you want to manage multiple libraries in the same repository
+# have a look at the workspace feature - we'll cover it later on.
+path="src/main.rs"
+name="rust_personal_learning"
+
+[dependencies]
+#custom deserialziation 
+#An auxiliary library for the serde crate.
+#Contains some useful helper stuff.
+serde-aux="4.1.2"
+tracing-actix-web = "0.6"
+secrecy = { version = "0.8", features = ["serde"] }
+once_cell="1.16.0"
+tracing-log="0.1.3"
+tracing-bunyan-formatter = "0.3"
+tracing-subscriber = { version = "0.3", features = ["registry", "env-filter"] }
+# log="0.4.1" - superseded by tracing
+# env_logger="0.9.3" - supersedd by tracing_subscriber, 
+#Subscriber impl of tracing compared to env_logger being Log trait impl of log
+tracing={version="0.1.37",features=["log"]}
+chrono = { version = "0.4.22", default-features = false, features = ["clock"] }
+uuid={version="1.2.2",features=["v4"]}
+actix-web = "4"
+tokio = {version = "1",features = ["macros","rt-multi-thread"]}
+serde={version="1.0.145",features=["derive"]}
+config="0.13.2"
+dotenvy = "0.15.6"
+#just a verbose way to define a dependency could also have done
+#sqlx={version="0.6",features=[...],default-features=false}
+[dependencies.sqlx]
+version = "0.6"
+default-features = false
+features = [
+"runtime-tokio-rustls",
+"macros",
+"postgres",
+"uuid",
+"chrono",
+"migrate",
+"offline"
+]
+
+[dev-dependencies]
+reqwest="0.11.12"
