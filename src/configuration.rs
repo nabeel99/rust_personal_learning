@@ -10,14 +10,33 @@ use sqlx::{
     ConnectOptions,
 };
 use std::convert::From;
+
+use crate::domain::SubscriberEmail;
 //name of fields should match 1:1 with yaml,
 //application_port , database
-#[derive(Deserialize)]
+#[derive(Deserialize,Clone)]
 pub struct Settings {
     pub application: ApplicationSettings,
     pub db_settings: DatabaseSettings,
+    pub email_client : EmailClientSettings,
 }
-#[derive(Deserialize)]
+#[derive(Deserialize,Clone)]
+
+pub struct EmailClientSettings {
+    pub base_url : String,
+    pub sender_email : String,
+    pub authorization_token : Secret<String>,
+    pub timeout_milliseconds : u64,
+}
+impl EmailClientSettings {
+    pub fn sender(&self) -> Result<SubscriberEmail,String> {
+        SubscriberEmail::parse(self.sender_email.clone())
+    }
+    pub fn timeout(&self)-> std::time::Duration {
+        std::time::Duration::from_secs(self.timeout_milliseconds)
+    }
+}
+#[derive(Deserialize,Clone)]
 pub struct DatabaseSettings {
     pub username: String,
     pub password: Secret<String>,
@@ -28,12 +47,13 @@ pub struct DatabaseSettings {
     pub port: u16,
     pub require_ssl: bool,
 }
-#[derive(Deserialize)]
+#[derive(Deserialize,Clone)]
 pub struct ApplicationSettings {
     //only being done to take care of env vars which are passed as string, so even a number is parsed as a string
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub port: u16,
     pub host: String,
+    pub base_url : String
 }
 pub enum Environment {
     Local,

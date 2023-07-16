@@ -1,3 +1,7 @@
 cargo sqlx prepare  : command to produce local cached db  types for compile queries to run against
 env var SQLX_OFFLINE, DATABASE_URL
 cargo sqlx prepare --check to see if cached db types is not outdated.
+
+
+!IMPORTANT
+ENSURE DATABASE_URL IS SET INITIALLY OF A OFFLINE SQLX.JSON IS NOT PRESENT

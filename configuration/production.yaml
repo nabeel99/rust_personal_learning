@@ -3,3 +3,6 @@ application:
 db_settings:
   #New Entry!
   require_ssl: true
+  email_client:
+  base_url: ""https://api.postmarkapp.com"
+  sender_email: "nabeel.n@blockapex.io"  
