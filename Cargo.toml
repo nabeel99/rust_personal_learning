@@ -21,7 +21,9 @@ path = "src/main.rs"
 name = "rust_personal_learning"
 
 [dependencies]
+anyhow = "1"
 # We need the `std_rng` to get access to the PRNG we want 
+thiserror="*"
 rand = { version = "0.8", features=["std_rng"] }
 #custom deserialziation 
 #An auxiliary library for the serde crate.

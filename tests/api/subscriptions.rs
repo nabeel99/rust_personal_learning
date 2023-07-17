@@ -6,6 +6,22 @@ use wiremock::{
 };
 
 #[tokio::test]
+async fn subscribe_fails_if_there_is_a_fatal_database_error() {
+    // Arrange
+    let app = spawn_app().await;
+    let body = "name=le%20guin&email=ursula_le_guin%40gmail.com";
+    // Sabotage the database
+    sqlx::query!("ALTER TABLE subscription_tokens DROP COLUMN subscription_token;",)
+        .execute(&app.pool_conn)
+        .await
+        .unwrap();
+    // Act
+    let response = app.post_subscriptions(body.into()).await;
+    // Assert
+    assert_eq!(response.status().as_u16(), 500);
+}
+
+#[tokio::test]
 async fn subscribe_sends_a_valid_link() {
     dotenvy::dotenv().expect("failed to load env parameters");
     //no need for this now as pool conn is part of testapp struct
@@ -27,10 +43,14 @@ async fn subscribe_sends_a_valid_link() {
     let test_body = "name=Nabeel%20Naveed&email=ac3r_nabeel%40live.com";
     //ACT
     let response = app.post_subscriptions(test_body.into()).await;
-    let email_request = &app.mock_server.received_requests().await.expect("failed to get received requests")[0];
+    let email_request = &app
+        .mock_server
+        .received_requests()
+        .await
+        .expect("failed to get received requests")[0];
     let confirmation_links = app.get_confirmation_links(&email_request);
-    assert_eq!(confirmation_links.html,confirmation_links.plain_text);
-    
+    assert_eq!(confirmation_links.html, confirmation_links.plain_text);
+
     assert_eq!(200, response.status().as_u16());
     let saved = sqlx::query!("SELECT email, name FROM subscriptions",)
         .fetch_one(&app.pool_conn)
@@ -39,7 +59,6 @@ async fn subscribe_sends_a_valid_link() {
     assert_eq!(saved.email, "ac3r_nabeel@live.com");
     assert_eq!(saved.name, "Nabeel Naveed");
 }
-
 
 #[tokio::test]
 // #[should_panic]
@@ -92,7 +111,6 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
     let test_body = "name=Nabeel%20Naveed&email=ac3r_nabeel%40live.com";
     let response = app.post_subscriptions(test_body.into()).await;
     assert_eq!(200, response.status().as_u16());
-   
 }
 #[tokio::test]
 async fn subscribe_check_persistence() {
@@ -122,9 +140,8 @@ async fn subscribe_check_persistence() {
         .expect("Failed to fetch saved subscription.");
     assert_eq!(saved.email, "ac3r_nabeel@live.com");
     assert_eq!(saved.name, "Nabeel Naveed");
-    assert_eq!(saved.status,"pending_confirmation");
+    assert_eq!(saved.status, "pending_confirmation");
 }
-
 
 #[tokio::test]
 async fn test_html_form_subscribe_data_api_200_response() -> Result<(), std::io::Error> {
